@@ -109,7 +109,61 @@ public class Model extends Observable {
     public boolean tilt(Side side) {
         boolean changed;
         changed = false;
+        int len = this.board.size();
+        board.setViewingPerspective(side);
+        for (int col = 0; col < len; col++){
+            int ceiling = len - 1;
+            for (int row = len - 1; row >= 0; row--){
+                if (this.board.tile(col,row) != null){
+                    Tile tmp = this.board.tile(col,row);
+                    if (row == len-1){
+                        continue;
+                    }
+                    if (this.board.tile(col,ceiling) != null){
+                        if (this.board.tile(col,ceiling).value() == tmp.value()){
+                            this.board.move(col,ceiling,tmp);
+                            changed = true;
+                            ceiling--;
+                            this.score += tmp.value() * 2;
+                        }
+                        else{
+                            ceiling--;
+                            this.board.move(col,ceiling,tmp);
+                            changed = true;
+                        }
+                    }
+                    else{
+                        this.board.move(col,ceiling,tmp);
+                        changed = true;
+                    }
+                }
 
+//                if (this.board.tile(col,row) != null){
+//                    Tile tmp = this.board.tile(col, row);
+//                    this.board.move(col,ceiling,tmp);
+//                    if (ceiling != row)changed = true;
+//                    for (int row_tmp = row - 1; row_tmp >= 0; row_tmp--){
+//                        if (this.board.tile(col, row_tmp) != null){
+//                            tmp = this.board.tile(col, row_tmp);
+//                            if (tmp.value() == this.board.tile(col, ceiling).value()){
+//                                this.board.move(col, ceiling, tmp);
+//                                ceiling--;
+//                                this.score+=tmp.value() * 2;
+//                                if (ceiling != row)changed = true;
+//                            }
+//                            else{
+//                                ceiling--;
+//                                this.board.move(col, ceiling, tmp);
+//                                if (ceiling != row)changed = true;
+//                            }
+//                            break;
+//                        }
+//                    }
+//                }
+
+            }
+        }
+        board.setViewingPerspective(side.NORTH);
         // TODO: Modify this.board (and perhaps this.score) to account
         // for the tilt to the Side SIDE. If the board changed, set the
         // changed local variable to true.
