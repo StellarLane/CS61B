@@ -13,6 +13,10 @@ public class ArrayDeque<T> {
         length = 8;
     }
 
+    public int size() {
+        return end - start + 1;
+    }
+
     public void extend(int new_len){
         T[] new_items = (T[]) new Object[new_len];
         System.arraycopy(items, start, new_items,start+ new_len / 4, end - start + 1);
