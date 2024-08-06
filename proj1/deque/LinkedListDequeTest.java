@@ -1,5 +1,6 @@
 package deque;
 
+import jh61b.junit.In;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -159,4 +160,15 @@ public class LinkedListDequeTest {
         assertNotEquals(lld3_1, lld3_3);
     }
 
+    @Test
+    public void test4() {
+        LinkedListDeque<Integer> lld4 = new LinkedListDeque<>();
+        ArrayDeque<Integer> ad4 = new ArrayDeque<>();
+        lld4.addLast(1);
+        ad4.addLast(1);
+        lld4.addLast(2);
+        assertFalse(lld4.equals(ad4));
+        lld4.removeLast();
+        assertTrue(lld4.equals(ad4));
+    }
 }
