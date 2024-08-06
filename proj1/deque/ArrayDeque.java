@@ -40,14 +40,15 @@ public class ArrayDeque<T> implements Iterable<T>, Deque<T> {
         if (other == null) {
             return false;
         }
-        if (this.getClass() != other.getClass()) {
+        if (!(other instanceof ArrayDeque)) {
             return false;
         }
-        if (this.size() != ((ArrayDeque<?>) other).size()) {
+        ArrayDeque<T> tmp = (ArrayDeque<T>) other;
+        if (tmp.size() != this.size()) {
             return false;
         }
         for (int i = 0; i < size(); i++) {
-            if (this.get(i) != ((ArrayDeque) other).get(i)) {
+            if (tmp.get(i) != this.get(i)) {
                 return false;
             }
         }
