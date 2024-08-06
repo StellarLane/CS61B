@@ -152,6 +152,7 @@ public class LinkedListDequeTest {
             lld3_1.addLast(i);
             lld3_2.addLast(i);
             lld3_3.addLast(i);
+            assertEquals(lld3_1.get(i), lld3_2.getRecursive(i));
         }
         lld3_3.removeLast();
         assertEquals(lld3_1, lld3_2);
