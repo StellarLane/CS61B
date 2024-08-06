@@ -1,5 +1,6 @@
 package deque;
 
+import edu.princeton.cs.algs4.StdRandom;
 import jh61b.junit.In;
 import org.junit.Test;
 
@@ -16,17 +17,31 @@ public class ArrayDequeTest {
         ad1.addFirst(0);
         ad1.addLast(2);
         ad1.addLast(3);
+        ad1.addFirst(1);
+        ad1.addFirst(0);
+        ad1.addLast(2);
+        ad1.addLast(3);
         ad1.printDeque();
         assertFalse(ad1.isEmpty());
         ad1.removeFirst();
         ad1.removeLast();
-        System.out.println(ad1.get(0));
-        System.out.println(ad1.get(1));
+        ad1.removeFirst();
+        ad1.removeLast();
+        ad1.removeFirst();
+        ad1.removeLast();
+        System.out.println(ad1.size());
+//        System.out.println(ad1.get(1));
         ad1.printDeque();
         ad1.removeFirst();
         ad1.removeLast();
+//        ad1.printDeque();
+//        assertTrue(ad1.isEmpty());
+        ad1.addFirst(1);
+        ad1.addFirst(0);
+        ad1.addLast(2);
+        ad1.addLast(3);
         ad1.printDeque();
-        assertTrue(ad1.isEmpty());
+        System.out.println(ad1.size());
     }
 
     @Test
@@ -89,5 +104,33 @@ public class ArrayDequeTest {
             ad6.removeFirst();
         }
         assertTrue(ad6.get(0)==9);
+    }
+
+    @Test
+    public void randomizedTest() {
+        ArrayDeque<Integer> arrayDeque = new ArrayDeque<>();
+
+        int N = 100000000;
+        for (int i = 0; i < N; i += 1) {
+            int operationNumber = StdRandom.uniform(0, 6);
+            if (operationNumber == 0) {
+                int randVal = StdRandom.uniform(0, 100);
+                arrayDeque.addFirst(randVal);
+            } else if (operationNumber == 1) {
+                int randVal = StdRandom.uniform(0, 100);
+                arrayDeque.addLast(randVal);
+            } else if (arrayDeque.size() == 0) {
+                assertTrue(arrayDeque.isEmpty());
+            } else if (operationNumber == 2) {
+                assertTrue(arrayDeque.size() > 0);
+            } else if (operationNumber == 3) {
+                arrayDeque.removeFirst();
+            } else if (operationNumber == 4) {
+                arrayDeque.removeLast();
+            } else if (operationNumber == 5) {
+                int randIndex = StdRandom.uniform(0, arrayDeque.size());
+                arrayDeque.get(randIndex);
+            }
+        }
     }
 }

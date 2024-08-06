@@ -72,8 +72,8 @@ public class ArrayDeque<T> implements Iterable<T>{
         T[] new_items = (T[]) new Object[new_len];
         System.arraycopy(items, start, new_items, 1, end - start + 1);
         items = new_items;
-        start = 1;
         end = size();
+        start = 1;
         length /= 2;
     }
 
