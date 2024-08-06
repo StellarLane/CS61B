@@ -2,7 +2,7 @@ package deque;
 
 import java.util.Iterator;
 
-public class LinkedListDeque<T> implements Iterable{
+public class LinkedListDeque<T> implements Iterable<T>, Deque<T>{
     public Iterator<T> iterator() {
         return new LLDiterator();
     }
@@ -141,6 +141,4 @@ public class LinkedListDeque<T> implements Iterable{
         }
         else return null;
     }
-
-    //TODO: iterator, equals
 }
