@@ -1,10 +1,50 @@
 package deque;
 
-public class ArrayDeque<T> {
+import java.util.Iterator;
+
+public class ArrayDeque<T> implements Iterable<T>{
     public T[] items;
     public int start;
     public int end;
     public int length;
+
+    public Iterator<T> iterator() {
+        return new ADiterator();
+    }
+
+    private class ADiterator implements Iterator<T>{
+        private int curIndex;
+
+        public ADiterator() {
+            curIndex = 0;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return (curIndex < size());
+        }
+
+        @Override
+        public T next() {
+            T returned = items[start + curIndex];
+            curIndex++;
+            return returned;
+        }
+    }
+
+    @Override
+    public boolean equals (Object other){
+        if (this == other) return true;
+        if (other == null) return false;
+        if (this.getClass() != other.getClass()) return false;
+        if (this.size() != ((ArrayDeque<?>) other).size()) return false;
+        for (int i = 0; i < size(); i++){
+            if (this.get(i) != ((ArrayDeque) other).get(i)) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     public ArrayDeque() {
         items = (T[]) new Object[8];
@@ -17,17 +57,29 @@ public class ArrayDeque<T> {
         return end - start + 1;
     }
 
-    public void extend(int new_len){
+    public void extend() {
+        int new_len = length * 2;
         T[] new_items = (T[]) new Object[new_len];
         System.arraycopy(items, start, new_items,start+ new_len / 4, end - start + 1);
         items = new_items;
         start += new_len / 4;
+        end += new_len / 4;
         length *= 2;
+    }
+
+    public void shrink() {
+        int new_len = length / 2;
+        T[] new_items = (T[]) new Object[new_len];
+        System.arraycopy(items, start, new_items, 1, end - start + 1);
+        items = new_items;
+        start = 1;
+        end = new_len - 2;
+        length /= 2;
     }
 
     public void addFirst(T x) {
         if (start == 0){
-            extend(2 * length);
+            extend();
         }
         start--;
         items[start] = x;
@@ -35,7 +87,7 @@ public class ArrayDeque<T> {
 
     public void addLast(T x) {
         if (end == length - 1) {
-            extend(2 * length);
+            extend();
         }
         end++;
         items[end] = x;
@@ -57,6 +109,9 @@ public class ArrayDeque<T> {
             T removed = items[start];
             items[start] = null;
             start++;
+            if (end - start + 1 < length / 2 - 1) {
+                shrink();
+            }
             return removed;
         }
         return null;
@@ -67,12 +122,16 @@ public class ArrayDeque<T> {
             T removed = items[end];
             items[end] = null;
             end--;
+            if (end - start + 1 < length / 2 - 1){
+                shrink();
+            }
             return removed;
         }
         return null;
     }
 
     public T get(int index) {
+        if (index < start || index > end) return null;
         return items[start + index];
     }
 }

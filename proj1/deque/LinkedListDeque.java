@@ -2,7 +2,55 @@ package deque;
 
 import java.util.Iterator;
 
-public class LinkedListDeque<T> {
+public class LinkedListDeque<T> implements Iterable{
+    public Iterator<T> iterator() {
+        return new LLDiterator();
+    }
+
+    private class LLDiterator implements Iterator<T> {
+        private node<T> curNode;
+        private int curIndex;
+
+        public LLDiterator() {
+            curNode = sentinel.next;
+            curIndex = 0;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return (curIndex < size);
+        }
+
+        @Override
+        public T next(){
+            T returned = curNode.cur;
+            curNode = curNode.next;
+            curIndex++;
+            return returned;
+        }
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        }
+        if (other == null) {
+            return false;
+        }
+        if (other.getClass() != this.getClass()) {
+            return false;
+        }
+        if (((LinkedListDeque<?>) other).size() != this.size()) {
+            return false;
+        }
+        for(int i = 0; i < size; i++) {
+            if (this.get(i) != ((LinkedListDeque) other).get(i)) return false;
+        }
+        return true;
+    }
+
+
     private static class node<T>{
         public T cur;
         public node<T> next;

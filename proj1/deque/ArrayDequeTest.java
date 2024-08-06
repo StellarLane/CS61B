@@ -30,8 +30,49 @@ public class ArrayDequeTest {
     public void test2() {
         ArrayDeque<Integer> ad2 = new ArrayDeque<>();
         for (int i = 0; i < 100; i++) {
-            ad2.addFirst(1);
-            ad2.addLast(3);
+            ad2.addFirst(-i);
+            ad2.addLast(i);
+            System.out.println(ad2.get(100));
+        }
+    }
+
+    @Test
+    public void test3() {
+        ArrayDeque<Integer> ad3 = new ArrayDeque<>();
+        for (int i = 0; i < 20; i++){
+            ad3.addFirst(-i);
+            ad3.addLast(i);
+        }
+        for (int i = 0; i < 10; i++){
+            ad3.removeFirst();
+            ad3.removeFirst();
+            System.out.println(ad3.size());
+        }
+    }
+
+    @Test
+    public void test4() {
+        ArrayDeque<Integer> ad3_1 = new ArrayDeque<>();
+        ArrayDeque<Integer> ad3_2 = new ArrayDeque<>();
+        ArrayDeque<Integer> ad3_3 = new ArrayDeque<>();
+        for (int i = 0; i < 10; i++) {
+            ad3_1.addLast(i);
+            ad3_2.addLast(i);
+            ad3_3.addLast(i);
+        }
+        ad3_3.removeLast();
+        assertEquals(ad3_2, ad3_1);
+        assertNotEquals(ad3_3, ad3_1);
+    }
+
+    @Test
+    public void test5() {
+        ArrayDeque<Integer> ad5 = new ArrayDeque<>();
+        for (int i = 0; i < 10; i++) {
+            ad5.addLast(i);
+        }
+        for (Object i: ad5){
+            System.out.print(i + " ");
         }
     }
 }
