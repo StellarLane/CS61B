@@ -73,7 +73,7 @@ public class ArrayDeque<T> implements Iterable<T>{
         System.arraycopy(items, start, new_items, 1, end - start + 1);
         items = new_items;
         start = 1;
-        end = new_len - 2;
+        end = size();
         length /= 2;
     }
 
@@ -131,7 +131,7 @@ public class ArrayDeque<T> implements Iterable<T>{
     }
 
     public T get(int index) {
-        if (index < start || index > end) return null;
+        if (index >= size()) return null;
         return items[start + index];
     }
 }

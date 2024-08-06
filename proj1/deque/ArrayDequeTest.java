@@ -2,6 +2,9 @@ package deque;
 
 import jh61b.junit.In;
 import org.junit.Test;
+
+import java.util.Optional;
+
 import static org.junit.Assert.*;
 
 public class ArrayDequeTest {
@@ -74,5 +77,17 @@ public class ArrayDequeTest {
         for (Object i: ad5){
             System.out.print(i + " ");
         }
+    }
+
+    @Test
+    public void test6() {
+        ArrayDeque<Integer> ad6 =new ArrayDeque<>();
+        for (int i = 0; i < 10; i++){
+            ad6.addLast(i);
+        }
+        for (int i = 0; i < 9; i++){
+            ad6.removeFirst();
+        }
+        assertTrue(ad6.get(0)==9);
     }
 }
