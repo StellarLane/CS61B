@@ -65,7 +65,7 @@ public class ArrayDeque<T> implements Iterable<T>, Deque<T> {
         return end - start + 1;
     }
 
-    public void extend() {
+    private void extend() {
         int newLen = length * 2;
         T[] newItems = (T[]) new Object[newLen];
         System.arraycopy(items, start, newItems, start + newLen / 4, end - start + 1);
@@ -75,11 +75,11 @@ public class ArrayDeque<T> implements Iterable<T>, Deque<T> {
         length *= 2;
     }
 
-    public void shrink() {
-        int new_len = length / 2;
-        T[] new_items = (T[]) new Object[new_len];
-        System.arraycopy(items, start, new_items, 1, end - start + 1);
-        items = new_items;
+    private void shrink() {
+        int newLen = length / 2;
+        T[] newItems = (T[]) new Object[newLen];
+        System.arraycopy(items, start, newItems, 1, end - start + 1);
+        items = newItems;
         end = size();
         start = 1;
         length /= 2;
@@ -108,10 +108,6 @@ public class ArrayDeque<T> implements Iterable<T>, Deque<T> {
         System.out.println();
     }
 
-    public boolean isEmpty() {
-        return (start - end) == 1;
-    }
-
     public T removeFirst() {
         if (!isEmpty()) {
             T removed = items[start];
@@ -130,7 +126,7 @@ public class ArrayDeque<T> implements Iterable<T>, Deque<T> {
             T removed = items[end];
             items[end] = null;
             end--;
-            if (end - start + 1 < length / 2 - 1){
+            if (end - start + 1 < length / 2 - 1) {
                 shrink();
             }
             return removed;

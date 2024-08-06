@@ -8,11 +8,11 @@ public class GuitarString {
      * means the values cannot be changed at runtime. We'll discuss this and
      * other topics in lecture on Friday. */
     private static final int SR = 44100;      // Sampling Rate
-    private static final double DECAY = .996;// energy decay factor
+    private static final double DECAY = .996; // energy decay factor
 
 
     /* Buffer for storing sound data. */
-     private final Deque<Double> buffer;
+    private final Deque<Double> buffer;
 
     /* Create a guitar string of the given frequency.  */
     public GuitarString(double frequency) {
@@ -21,12 +21,6 @@ public class GuitarString {
             buffer.addLast(0.0);
         }
     }
-
-    public LinkedListDeque<Double> getBuffer() {
-        return (LinkedListDeque<Double>) buffer;
-    }
-
-
     /* Pluck the guitar string by replacing the buffer with white noise. */
     public void pluck() {
         //       Make sure that your random numbers are different from each
