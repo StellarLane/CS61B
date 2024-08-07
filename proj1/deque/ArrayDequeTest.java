@@ -1,5 +1,6 @@
 package deque;
 
+import afu.org.checkerframework.checker.igj.qual.I;
 import edu.princeton.cs.algs4.StdRandom;
 import jh61b.junit.In;
 import org.junit.Test;
@@ -73,10 +74,13 @@ public class ArrayDequeTest {
         ArrayDeque<Integer> ad3_1 = new ArrayDeque<>();
         ArrayDeque<Integer> ad3_2 = new ArrayDeque<>();
         ArrayDeque<Integer> ad3_3 = new ArrayDeque<>();
-        for (int i = 0; i < 10; i++) {
-            ad3_1.addLast(i);
-            ad3_2.addLast(i);
-            ad3_3.addLast(i);
+        for (int i = 0; i < 100; i++) {
+            int add = StdRandom.uniform(0,100);
+            ad3_1.addLast(add);
+            ad3_2.addLast(add);
+            assertNotEquals(ad3_3, ad3_1);
+            ad3_3.addLast(add);
+            assertEquals(ad3_2, ad3_1);
         }
         ad3_3.removeLast();
         assertEquals(ad3_2, ad3_1);
