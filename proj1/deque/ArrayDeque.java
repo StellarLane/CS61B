@@ -45,7 +45,7 @@ public class ArrayDeque<T> implements Iterable<T>, Deque<T> {
             for (int i = 0; i < size(); i++) {
                 T a = tmp.get(i);
                 T b = get(i);
-                if (a != b) {
+                if (!(a.equals(b))) {
                     return false;
                 }
             }

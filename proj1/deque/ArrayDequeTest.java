@@ -137,4 +137,35 @@ public class ArrayDequeTest {
             }
         }
     }
+
+    @Test
+    public void testString() {
+        ArrayDeque<String> ad1 = new ArrayDeque<>();
+        ArrayDeque<String> ad2 = new ArrayDeque<>();
+        for (int i = 0; i < 10; i++) {
+            assertEquals(ad1,ad2);
+            int add = StdRandom.uniform(0,26);
+            String add_asc2 = "A" + add;
+            ad1.addLast(add_asc2);
+            assertNotEquals(ad1, ad2);
+            ad2.addLast(add_asc2);
+        }
+    }
+
+    @Test
+    public void test7 () {
+        ArrayDeque<ArrayDeque<Integer>> ad1 = new ArrayDeque<>();
+        ArrayDeque<ArrayDeque<Integer>> ad2 = new ArrayDeque<>();
+        for (int i = 0; i < 10; i++) {
+            assertEquals(ad1, ad2);
+            ArrayDeque<Integer> tmp = new ArrayDeque<>();
+            for (int j = 0; j <= i; j++) {
+                tmp.addLast(j);
+            }
+            ad1.addLast(tmp);
+            assertNotEquals(ad1, ad2);
+            ad2.addLast(tmp);
+        }
+    }
+
 }
