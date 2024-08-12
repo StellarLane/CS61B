@@ -34,6 +34,7 @@ public class TestMyHashMap {
             assertTrue(null != b.get("hi" + i)
                     && b.containsKey("hi" + i));
         }
+        System.out.println(b.keySet());
         b.clear();
         assertEquals(0, b.size());
         for (int i = 0; i < 455; i++) {
