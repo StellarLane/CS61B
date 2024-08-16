@@ -9,7 +9,7 @@ import static gitlet.Utils.*;
  *  TODO: It's a good idea to give a description here of what else this Class
  *  does at a high level.
  *
- *  @author TODO
+ *  @author StellarLane
  */
 public class Repository {
     /**
@@ -20,10 +20,21 @@ public class Repository {
      * variable is used. We've provided two examples for you.
      */
 
-    /** The current working directory. */
-    public static final File CWD = new File(System.getProperty("user.dir"));
-    /** The .gitlet directory. */
-    public static final File GITLET_DIR = join(CWD, ".gitlet");
+    static final File CWD = new File(System.getProperty("user.dir"));
+    static final File GITLET_DIR = join(CWD, ".gitlet");
+    static final File REF_DIR = join(GITLET_DIR, "refs");
+    static final File HEADS_DIR = join(REF_DIR, "heads");
+    static final File OBJECTS_DIR = join(GITLET_DIR, "objects");
 
     /* TODO: fill in the rest of this class. */
+    public void init() {
+        if (GITLET_DIR.exists()) {
+            System.out.println("A gitlet system already exits in the directory.");
+            return;
+        }
+        GITLET_DIR.mkdir();
+        REF_DIR.mkdir();
+        HEADS_DIR.mkdir();
+        OBJECTS_DIR.mkdir();
+    }
 }
