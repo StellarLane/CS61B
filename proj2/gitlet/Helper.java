@@ -1,16 +1,28 @@
 package gitlet;
 
-import java.io.File;
+import static gitlet.Utils.*;
 
-import static gitlet.Utils.join;
+import java.io.File;
+import java.util.HashMap;
+import java.util.Set;
 
 public class Helper {
-    public static File readFromFile(String id) {
-        return join(Repository.OBJECTS_DIR, id.substring(0,2), id.substring(2));
+    public static Stage readIndex() {
+        return readObject(Repository.INDEX, Stage.class);
     }
 
-    public static <serializeType> void save(File filePath, serializeType content) {
-
+    public static Blob loadBlob(String shaID) {
+        return readObject(join(Repository.BLOBS_DIR, shaID.substring(0,2), shaID.substring(2)), Blob.class);
     }
 
+    public static Commit loadCommit(String shaID) {
+        return readObject(join(Repository.COMMITS_DIR, shaID.substring(0,2), shaID.substring(2)), Commit.class);
+    }
+
+    public static void saveBlob(HashMap<String, String> commitBlobs) {
+        Set<String> commitBlobsKeySet = commitBlobs.keySet();
+        for (String singleBlob : commitBlobsKeySet) {
+            new Blob(singleBlob);
+        }
+    }
 }

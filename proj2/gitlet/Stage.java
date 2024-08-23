@@ -1,47 +1,45 @@
 package gitlet;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.*;
 import java.io.Serializable;
-import static gitlet.Helper.*;
+import java.util.HashMap;
+import java.util.HashSet;
 
-/**
- * the staging area implementation
- * the staging area contains a map storing the filename and the shaID of the files that are added
- * and another list containing the removed files.
- * @author Stellarlane
- */
+import static gitlet.Utils.*;
 
-public class Stage implements Serializable{
+public class Stage implements Serializable {
+    /**
+     * An implementation for the gitlet staging area.
+     * @author StellarLane
+     */
 
-    /** file name as key, shaID as the value */
+    /** The added files, with the file name as key and shaID as value */
     private HashMap<String, String> added;
-    private List<String> removed;
+    /** The removed files */
+    private HashSet<String> removed;
 
     public Stage() {
         added = new HashMap<>();
-        removed = new ArrayList<>();
+        removed = new HashSet<>();
+        writeObject(Repository.INDEX, this);
     }
 
-    public void addFile(String file, String id) {
-        added.put(file, id);
+    public Stage(HashMap<String, String> trackedBlobs, HashSet<String> removedBlobs) {
+        added = trackedBlobs;
+        removed = removedBlobs;
+        writeObject(Repository.INDEX, this);
     }
 
-    public void removeFile(String file) {
-        removed.add(file);
-    }
-
-    public void clearStage() {
-        added = new HashMap<>();
-        removed = new ArrayList<>();
+    public void add(String fileName, String shaID) {
+        added.put(fileName, shaID);
+        writeObject(Repository.INDEX, this);
     }
 
     public HashMap<String, String> getAdded() {
         return added;
     }
 
-    public List<String> getRemoved() {
+    public HashSet<String> getRemoved() {
         return removed;
     }
 

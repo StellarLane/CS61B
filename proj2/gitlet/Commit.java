@@ -2,15 +2,15 @@ package gitlet;
 
 // TODO: any imports you need here
 
-//import afu.org.checkerframework.checker.oigj.qual.O;
-
 import java.io.File;
-import java.io.Serializable;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date; // TODO: You'll likely use this in this class
 import java.util.HashMap;
+import java.util.Locale;
 
 import static gitlet.Utils.*;
-import static gitlet.Helper.*;
 
 /** Represents a gitlet commit object.
  *  TODO: It's a good idea to give a description here of what else this Class
@@ -18,7 +18,7 @@ import static gitlet.Helper.*;
  *
  *  @author StellarLane
  */
-public class Commit implements Serializable {
+public class Commit implements Objects {
     /**
      * TODO: add instance variables here.
      *
@@ -27,45 +27,76 @@ public class Commit implements Serializable {
      * variable is used. We've provided one example for `message`.
      */
 
+    /** The message of this Commit. */
     private final String message;
-    private final Date date;
-    /** The parent commits. */
-    private final String parent;
-    private final String shaID;
-    /** the file stored in the objects folder containing the instance. */
-    private final File file;
-    /** the tracked blobs in the current commit,
-     * stored in a map with the file path as the key and the shaID as the value.*/
+    /** The time of the commit. */
+    private final Date time;
+    /** The parents of the commit */
+    private final String parents;
+    /** The blobs tracked, with the filepath as key and shaID as value */
     private final HashMap<String, String> trackedBlobs;
-
+    /** The shaID of the commit */
+    private final String shaID;
 
     /* TODO: fill in the rest of this class. */
 
     /**
-     * This is a general constructor for commit, it will create a commit instance
+     * the default commit constructor
      * @param commitMessage
-     * @param commitParent will be null if is the initial commit.
-     * @param blobs containing the blobs tracked in the commit.
+     * @param commitParents
+     * @param tracked
      */
-    public Commit(String commitMessage, String commitParent, HashMap<String, String> blobs) {
+    public Commit(String commitMessage, String commitParents, HashMap<String, String> tracked) {
         message = commitMessage;
-        if (message.equals("Initial commit")) {
-            date = new Date(0);
-        } else {
-            date = new Date();
-        }
-        parent = commitParent;
-        shaID = Utils.sha1(date.toString(), message);
-        file = join(Repository.OBJECTS_DIR, shaID.substring(0,2), shaID.substring(2));
-        trackedBlobs = blobs;
+        time = new Date();
+        parents = commitParents;
+        trackedBlobs = tracked;
+        shaID = createShaID();
+        ArrayList<String> allCommitIDs = readObject(Repository.ALL_COMMITS, ArrayList.class);
+        allCommitIDs.add(shaID);
+        writeObject(Repository.ALL_COMMITS, allCommitIDs);
     }
 
     /**
-     * get the commit from serialized contents.
-     * @param id
-     * @return Commit
+     * The initial commit constructor.
      */
-    public Commit readCommitFromFile(String id) {
-        return readObject(Helper.readFromFile(id), Commit.class);
+    public Commit() {
+        message = "initial commit";
+        time = new Date(0);
+        parents = "";
+        trackedBlobs = new HashMap<>();
+        shaID = createShaID();
+        ArrayList<String> allCommitIDs = new ArrayList<>();
+        allCommitIDs.add(shaID);
+        writeObject(Repository.ALL_COMMITS, allCommitIDs);
+    }
+
+    private String createShaID() {
+        return Utils.sha1(message, time.toString(), parents.toString(), trackedBlobs.toString());
+    }
+
+    public HashMap<String, String> getTrackedBlobs() {
+        return trackedBlobs;
+    }
+
+    public String getParents() { return parents; }
+
+    public String getMessage() { return message; }
+
+    public String getTime() {
+        return new SimpleDateFormat("EEE MMM d HH:mm:ss yyyy Z").format(time);
+    }
+
+    @Override
+    public String getShaID() {
+        return shaID;
+    }
+
+    @Override
+    public void save() {
+        File parentDir = join(Repository.COMMITS_DIR, shaID.substring(0,2));
+        parentDir.mkdir();
+        File targetFile = join(parentDir, shaID.substring(2));
+        writeObject(targetFile, this);
     }
 }

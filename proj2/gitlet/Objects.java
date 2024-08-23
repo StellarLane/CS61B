@@ -1,26 +1,12 @@
 package gitlet;
 
 import java.io.File;
-import java.util.*;
 import java.io.Serializable;
 
-import static gitlet.Utils.*;
+import static gitlet.Utils.join;
+import static gitlet.Utils.writeObject;
 
-/** An interface for the instances in the object directory, implemented by blob and commit
- * @author StellarLane
- * */
-
-public interface Objects extends Serializable{
-
-    File file = null;
-
-    default void save() {
-        System.out.println(file.toString());
-        file.getParentFile().mkdir();
-        writeObject(file, this);
-    }
-
-    default File readFromFile(String id) {
-        return join(Repository.OBJECTS_DIR, id.substring(0,2), id.substring(2));
-    }
+public interface Objects extends Serializable {
+    String getShaID();
+    void save();
 }
