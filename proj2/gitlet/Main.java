@@ -88,6 +88,25 @@ public class Main {
                 }
                 Repository.checkStatus();
                 break;
+            case "checkout":
+                if (args[1].equals("--")) {
+                    if (validateNumArgs("checkout", args, 3)) {
+                        break;
+                    }
+                    Repository.checkoutFile(args[2]);
+                    break;
+                } else if (args[2].equals("--")) {
+                    if (validateNumArgs("checkout", args, 4)) {
+                        break;
+                    }
+                    Repository.checkoutFileCommit(args[1], args[3]);
+                    break;
+                } else {
+                    if (validateNumArgs("checkout", args, 2)) {
+                        break;
+                    }
+                    Repository.checkoutBranch(args[1]);
+                }
             default:
                 System.out.println("No command called " + args[0] + " found");
             // TODO: FILL THE REST IN

@@ -9,20 +9,22 @@ import static gitlet.Helper.*;
  * An implementation for blob, an Objects class that tracks file and its changes.
  */
 public class Blob implements Objects{
-    /** The file the blob tracks */
-    private final File sourceFile;
-    /** The name of the source file */
-    private final String sourceName;
+    /** The content of the file */
+    private final String sourceFileString;
     /** The shaID */
-    private String shaID;
+    private final String shaID;
 
 
     public Blob(String sourceFileName) {
-        sourceFile = join(Repository.CWD, sourceFileName);
-        sourceName = sourceFile.getName();
-        String sourceFileString = readContentsAsString(sourceFile);
+        File sourceFile = join(Repository.CWD, sourceFileName);
+        String sourceName = sourceFile.getName();
+        sourceFileString = readContentsAsString(sourceFile);
         shaID = sha1(sourceName, sourceFileString);
         this.save();
+    }
+
+    public String getSourceFileString() {
+        return sourceFileString;
     }
 
     @Override

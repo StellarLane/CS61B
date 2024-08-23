@@ -2,7 +2,6 @@ package gitlet;
 
 import java.io.File;
 import java.util.*;
-import java.util.Objects;
 
 import static gitlet.Utils.*;
 import static gitlet.Helper.*;
@@ -64,7 +63,7 @@ public class Repository {
         Commit initialCommit = new Commit();
         initialCommit.save();
         setPointer(initialCommit);
-        writeObject(Repository.INDEX, new Stage());
+        new Stage();
     }
 
     public static void add(File addFile) {
@@ -75,7 +74,8 @@ public class Repository {
     }
 
     public static void makeCommit(String commitMessage) {
-        HashMap<String, String> stagingAreaAdded = readIndex().getAdded();
+        HashMap<String, String> stagingAreaAdded = readIndex().getCurCommit();
+        stagingAreaAdded.putAll(readIndex().getAdded());
         Commit parentCommit = loadCommit(getPointer());
         String parentCommitString = parentCommit.getShaID();
         HashMap<String, String> CommitBlobs = parentCommit.getTrackedBlobs();
@@ -86,22 +86,25 @@ public class Repository {
         CommitBlobs.putAll(stagingAreaAdded);
         Commit newCommit = new Commit(commitMessage, parentCommitString, CommitBlobs);
         newCommit.save();
-        saveBlob(CommitBlobs);
+        saveBlob(stagingAreaAdded);
         setPointer(newCommit);
-        new Stage(CommitBlobs, new HashSet<>());
+        new Stage(CommitBlobs, new HashMap<>(), new HashSet<>());
     }
 
     public static void removeFile(String rmFileName) {
+        HashMap<String, String> stagingAreaSaved = readIndex().getCurCommit();
         HashMap<String, String> stagingAreaAdded = readIndex().getAdded();
         HashSet<String> stagingAreaRemoved = readIndex().getRemoved();
         if (checkCommitBlob(rmFileName)) {
             stagingAreaRemoved.add(rmFileName);
+            stagingAreaSaved.remove(rmFileName);
             restrictedDelete(join(Repository.CWD, rmFileName));
+            new Stage(stagingAreaSaved, stagingAreaAdded, stagingAreaRemoved);
         } else if (stagingAreaAdded.containsKey(rmFileName)) {
             stagingAreaAdded.remove(rmFileName);
-            new Stage(stagingAreaAdded, stagingAreaRemoved);
+            new Stage(stagingAreaSaved, stagingAreaAdded, stagingAreaRemoved);
         } else {
-            System.out.println("No reason to move the file.");
+            System.out.println("No reason to remove the file.");
         }
     }
 
@@ -142,15 +145,45 @@ public class Repository {
         statusFormat("Staged Files");
         statusStaged();
         statusFormat("Removed Files");
+        statusRemoved();
     }
     //TODO: modified but not staged, untracked
+
+    public static void checkoutFile(String file) {
+        File fileCheckout = join(CWD, file);
+        HashMap<String, String> curCommitBlob = loadCommit(getPointer()).getTrackedBlobs();
+        if (curCommitBlob.containsKey(file)) {
+//            System.out.println(loadBlob(curCommitBlob.get(file)).getSourceFileString());
+            writeContents(fileCheckout, loadBlob(curCommitBlob.get(file)).getSourceFileString());
+        } else {
+            System.out.println("File does not exist in that commit.");
+        }
+    }
+
+    public static void checkoutFileCommit(String commitID, String file) {
+        if (!readObject(ALL_COMMITS, ArrayList.class).contains(commitID)) {
+            System.out.println("No commit with that id exists.");
+            return;
+        }
+        File fileCheckout = join(CWD, file);
+        HashMap<String, String> commitBlob = loadCommit(commitID).getTrackedBlobs();
+        if (commitBlob.containsKey(file)) {
+            writeContents(fileCheckout, loadBlob(commitBlob.get(file)).getSourceFileString());
+        } else {
+            System.out.println("File does not exist in that commit.");
+        }
+    }
+
+    public static void checkoutBranch(String branch) {
+
+    }
 
     private static void statusFormat(String content) {
         System.out.println("=== " + content + " ===");
     }
 
     private static void statusBranch() {
-        String[] allBranches = REFS_DIR.list();
+        String[] allBranches = HEADS_DIR.list();
         assert allBranches != null;
         for (String branch : allBranches) {
             if (branch.equals(join(GITLET_DIR, readContentsAsString(HEAD)).getName())) {

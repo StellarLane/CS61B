@@ -13,20 +13,24 @@ public class Stage implements Serializable {
      * @author StellarLane
      */
 
+    /** A copy of the blobs tracked in the current commit. */
+    private HashMap<String, String> curCommit;
     /** The added files, with the file name as key and shaID as value */
     private HashMap<String, String> added;
     /** The removed files */
     private HashSet<String> removed;
 
     public Stage() {
+        curCommit = new HashMap<>();
         added = new HashMap<>();
         removed = new HashSet<>();
         writeObject(Repository.INDEX, this);
     }
 
-    public Stage(HashMap<String, String> trackedBlobs, HashSet<String> removedBlobs) {
-        added = trackedBlobs;
-        removed = removedBlobs;
+    public Stage(HashMap<String, String> savedFiles, HashMap<String, String> addedFiles, HashSet<String> removedFiles) {
+        curCommit = savedFiles;
+        added = addedFiles;
+        removed = removedFiles;
         writeObject(Repository.INDEX, this);
     }
 
@@ -42,5 +46,7 @@ public class Stage implements Serializable {
     public HashSet<String> getRemoved() {
         return removed;
     }
+
+    public HashMap<String, String> getCurCommit() { return curCommit; }
 
 }
