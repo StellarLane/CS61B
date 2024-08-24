@@ -36,6 +36,7 @@ public class Stage implements Serializable {
     public void add(String fileName, String shaID) {
         if (removed.contains(fileName)) {
             removed.remove(fileName);
+            writeObject(Repository.INDEX, this);
             return;
         }
         added.put(fileName, shaID);

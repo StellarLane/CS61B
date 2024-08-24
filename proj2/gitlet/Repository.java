@@ -146,7 +146,6 @@ public class Repository {
         statusFormat("Untracked Files");
         System.out.println();
     }
-    //TODO: modified but not staged, untracked
 
     public static void checkoutFile(String file) {
         File fileCheckout = join(CWD, file);
