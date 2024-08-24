@@ -1,6 +1,7 @@
 package gitlet;
 
 import java.io.File;
+import java.util.Objects;
 
 import static gitlet.Utils.*;
 import static gitlet.Helper.*;
@@ -47,7 +48,7 @@ public class Main {
                 }
                 break;
             case "commit":
-                if (args.length == 1) {
+                if (args.length == 1 || args[1].isEmpty()) {
                     System.out.println("Please enter a commit message.");
                     return;
                 }
@@ -113,6 +114,12 @@ public class Main {
                     break;
                 }
                 Repository.createBranch(args[1]);
+                break;
+            case "rm-branch":
+                if (validateNumArgs("rm-branch", args, 2)) {
+                    break;
+                }
+                Repository.removeBranch(args[1]);
                 break;
             default:
                 System.out.println("No command called " + args[0] + " found");

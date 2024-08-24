@@ -1,6 +1,5 @@
 package gitlet;
 
-import java.io.File;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -27,7 +26,7 @@ public class Stage implements Serializable {
         writeObject(Repository.INDEX, this);
     }
 
-    public Stage(HashMap<String, String> savedFiles, HashMap<String, String> addedFiles, HashSet<String> removedFiles) {
+    public Stage(HashMap savedFiles, HashMap addedFiles, HashSet removedFiles) {
         curCommit = savedFiles;
         added = addedFiles;
         removed = removedFiles;
@@ -35,6 +34,10 @@ public class Stage implements Serializable {
     }
 
     public void add(String fileName, String shaID) {
+        if (removed.contains(fileName)) {
+            removed.remove(fileName);
+            return;
+        }
         added.put(fileName, shaID);
         writeObject(Repository.INDEX, this);
     }
@@ -47,6 +50,8 @@ public class Stage implements Serializable {
         return removed;
     }
 
-    public HashMap<String, String> getCurCommit() { return curCommit; }
+    public HashMap<String, String> getCurCommit() {
+        return curCommit;
+    }
 
 }

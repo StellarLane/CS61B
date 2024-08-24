@@ -1,26 +1,20 @@
 package gitlet;
 
-// TODO: any imports you need here
-
 import java.io.File;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date; // TODO: You'll likely use this in this class
+import java.util.Date;
 import java.util.HashMap;
-import java.util.Locale;
 
 import static gitlet.Utils.*;
 
 /** Represents a gitlet commit object.
- *  TODO: It's a good idea to give a description here of what else this Class
  *  does at a high level.
  *
  *  @author StellarLane
  */
 public class Commit implements Objects {
     /**
-     * TODO: add instance variables here.
      *
      * List all instance variables of the Commit class here with a useful
      * comment above them describing what that variable represents and how that
@@ -37,8 +31,6 @@ public class Commit implements Objects {
     private final HashMap<String, String> trackedBlobs;
     /** The shaID of the commit */
     private final String shaID;
-
-    /* TODO: fill in the rest of this class. */
 
     /**
      * the default commit constructor
@@ -79,9 +71,13 @@ public class Commit implements Objects {
         return trackedBlobs;
     }
 
-    public String getParents() { return parents; }
+    public String getParents() {
+        return parents;
+    }
 
-    public String getMessage() { return message; }
+    public String getMessage() {
+        return message;
+    }
 
     public String getTime() {
         return new SimpleDateFormat("EEE MMM d HH:mm:ss yyyy Z").format(time);
@@ -94,7 +90,7 @@ public class Commit implements Objects {
 
     @Override
     public void save() {
-        File parentDir = join(Repository.COMMITS_DIR, shaID.substring(0,2));
+        File parentDir = join(Repository.COMMITS_DIR, shaID.substring(0, 2));
         parentDir.mkdir();
         File targetFile = join(parentDir, shaID.substring(2));
         writeObject(targetFile, this);

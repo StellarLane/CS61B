@@ -8,7 +8,7 @@ import static gitlet.Helper.*;
 /**
  * An implementation for blob, an Objects class that tracks file and its changes.
  */
-public class Blob implements Objects{
+public class Blob implements Objects {
     /** The content of the file */
     private final String sourceFileString;
     /** The shaID */
@@ -34,7 +34,7 @@ public class Blob implements Objects{
 
     @Override
     public void save() {
-        File parentDir = join(Repository.BLOBS_DIR, shaID.substring(0,2));
+        File parentDir = join(Repository.BLOBS_DIR, shaID.substring(0, 2));
         parentDir.mkdir();
         File targetFile = join(parentDir, shaID.substring(2));
         writeObject(targetFile, this);

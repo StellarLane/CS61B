@@ -3,21 +3,17 @@ package gitlet;
 import java.io.File;
 import java.util.*;
 
-import static gitlet.Helper.statusFuncs.*;
+import static gitlet.Helper.StatusFuncs.*;
 import static gitlet.Utils.*;
 import static gitlet.Helper.*;
 
-// TODO: any imports you need here
-
 /** Represents a gitlet repository.
- *  TODO: It's a good idea to give a description here of what else this Class
  *  does at a high level.
  *
  *  @author StellarLane
  */
 public class Repository {
     /**
-     * TODO: add instance variables here.
      *
      * List all instance variables of the Repository class here with a useful
      * comment above them describing what that variable represents and how that
@@ -44,8 +40,6 @@ public class Repository {
     public static final File HEAD = join(GITLET_DIR, "HEAD");
     /** A file containing all the commitIDs */
     public static final File ALL_COMMITS = join(GITLET_DIR, "all_commits");
-
-    /* TODO: fill in the rest of this class. */
 
     /**
      * created the directories needed,
@@ -79,17 +73,17 @@ public class Repository {
         stagingAreaAdded.putAll(readIndex().getAdded());
         Commit parentCommit = loadCommit(getPointer());
         String parentCommitString = parentCommit.getShaID();
-        HashMap<String, String> CommitBlobs = parentCommit.getTrackedBlobs();
-        if (CommitBlobs.equals(stagingAreaAdded)) {
+        HashMap<String, String> commitBlobs = parentCommit.getTrackedBlobs();
+        if (commitBlobs.equals(stagingAreaAdded)) {
             System.out.println("No changes added to the commit.");
             return;
         }
-        CommitBlobs.putAll(stagingAreaAdded);
-        Commit newCommit = new Commit(commitMessage, parentCommitString, CommitBlobs);
+        commitBlobs.putAll(stagingAreaAdded);
+        Commit newCommit = new Commit(commitMessage, parentCommitString, commitBlobs);
         newCommit.save();
         saveBlob(stagingAreaAdded);
         setPointer(newCommit);
-        new Stage(CommitBlobs, new HashMap<>(), new HashSet<>());
+        new Stage(commitBlobs, new HashMap<>(), new HashSet<>());
     }
 
     public static void removeFile(String rmFileName) {
@@ -180,12 +174,13 @@ public class Repository {
 
     public static void checkoutBranch(String branchName) {
         if (checkBranchAvailable()) {
-            System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
+            System.out.println(
+                    "There is an untracked file in the way; delete it, or add and commit it first."
+            );
             return;
         }
         if (!checkBranchExists(branchName)) {
             System.out.println("No such branch exists.");
-            return;
         } else if (join(GITLET_DIR, readContentsAsString(HEAD)).getName().equals(branchName)) {
             System.out.println("No need to checkout the current branch.");
         }
@@ -194,9 +189,22 @@ public class Repository {
     public static void createBranch(String branchName) {
         if (checkBranchExists(branchName)) {
             System.out.println("A branch with that name already exists.");
+            return;
         }
         File branchPointer = join(HEADS_DIR, branchName);
         String curCommitID = loadCommit(getPointer()).getShaID();
         writeContents(branchPointer, curCommitID);
+    }
+
+    public static void removeBranch(String branchName) {
+        if (!checkBranchExists(branchName)) {
+            System.out.println("A branch with that name does not exist.");
+            return;
+        }
+        if (getCurrentBranch().equals(branchName)) {
+            System.out.println("Cannot remove the current branch.");
+            return;
+        }
+        join(HEADS_DIR, branchName).delete();
     }
 }

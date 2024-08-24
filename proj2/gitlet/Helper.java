@@ -21,7 +21,8 @@ public class Helper {
      * @return the correspondent blob
      */
     public static Blob loadBlob(String shaID) {
-        return readObject(join(Repository.BLOBS_DIR, shaID.substring(0,2), shaID.substring(2)), Blob.class);
+        File tmp = join(Repository.BLOBS_DIR, shaID.substring(0, 2), shaID.substring(2));
+        return readObject(tmp, Blob.class);
     }
 
     /**
@@ -30,7 +31,8 @@ public class Helper {
      * @return the correspondent commit
      */
     public static Commit loadCommit(String shaID) {
-        return readObject(join(Repository.COMMITS_DIR, shaID.substring(0,2), shaID.substring(2)), Commit.class);
+        File tmp = join(Repository.COMMITS_DIR, shaID.substring(0, 2), shaID.substring(2));
+        return readObject(tmp, Commit.class);
     }
 
     /**
@@ -67,7 +69,7 @@ public class Helper {
     /**
      * A class of helper functions for the status commend.
      */
-    public static class statusFuncs {
+    public static class StatusFuncs {
         protected static void statusBranch() {
             String[] allBranches = HEADS_DIR.list();
             assert allBranches != null;
@@ -127,10 +129,10 @@ public class Helper {
     }
 
     protected static String logFormat(Commit commit) {
-        return "===\n" +
-                "commit " + commit.getShaID() + "\n" +
-                "Date: " + commit.getTime() + "\n" +
-                commit.getMessage() + "\n";
+        return "===\n"
+                + "commit " + commit.getShaID() + "\n"
+                + "Date: " + commit.getTime() + "\n"
+                + commit.getMessage() + "\n";
     }
 
     protected static boolean checkCommitBlob(String fileName) {
@@ -149,5 +151,9 @@ public class Helper {
      */
     protected static String getPointer() {
         return readContentsAsString(join(GITLET_DIR, readContentsAsString(HEAD)));
+    }
+
+    protected static String getCurrentBranch() {
+        return join(GITLET_DIR, readContentsAsString(HEAD)).getName();
     }
 }
