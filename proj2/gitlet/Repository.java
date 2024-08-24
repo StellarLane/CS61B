@@ -3,6 +3,7 @@ package gitlet;
 import java.io.File;
 import java.util.*;
 
+import static gitlet.Helper.statusFuncs.*;
 import static gitlet.Utils.*;
 import static gitlet.Helper.*;
 
@@ -59,7 +60,7 @@ public class Repository {
         BLOBS_DIR.mkdir();
         REFS_DIR.mkdir();
         HEADS_DIR.mkdir();
-        writeContents(HEAD, "refs/heads/main");
+        writeContents(HEAD, "refs/heads/master");
         Commit initialCommit = new Commit();
         initialCommit.save();
         setPointer(initialCommit);
@@ -146,6 +147,10 @@ public class Repository {
         statusStaged();
         statusFormat("Removed Files");
         statusRemoved();
+        statusFormat("Modifications Not Staged For Commit");
+        System.out.println();
+        statusFormat("Untracked Files");
+        System.out.println();
     }
     //TODO: modified but not staged, untracked
 
@@ -153,7 +158,6 @@ public class Repository {
         File fileCheckout = join(CWD, file);
         HashMap<String, String> curCommitBlob = loadCommit(getPointer()).getTrackedBlobs();
         if (curCommitBlob.containsKey(file)) {
-//            System.out.println(loadBlob(curCommitBlob.get(file)).getSourceFileString());
             writeContents(fileCheckout, loadBlob(curCommitBlob.get(file)).getSourceFileString());
         } else {
             System.out.println("File does not exist in that commit.");
@@ -174,63 +178,25 @@ public class Repository {
         }
     }
 
-    public static void checkoutBranch(String branch) {
-
-    }
-
-    private static void statusFormat(String content) {
-        System.out.println("=== " + content + " ===");
-    }
-
-    private static void statusBranch() {
-        String[] allBranches = HEADS_DIR.list();
-        assert allBranches != null;
-        for (String branch : allBranches) {
-            if (branch.equals(join(GITLET_DIR, readContentsAsString(HEAD)).getName())) {
-                System.out.print("*");
-            }
-            System.out.println(branch);
+    public static void checkoutBranch(String branchName) {
+        if (checkBranchAvailable()) {
+            System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
+            return;
         }
-        System.out.println();
-    }
-
-    private static void statusStaged() {
-        printFileName(readIndex().getAdded().keySet());
-    }
-
-    private static void statusRemoved() {
-        printFileName(readIndex().getRemoved());
-    }
-
-    private static void printFileName(Set<String> fileList) {
-        for (String file : fileList) {
-            System.out.println(file);
+        if (!checkBranchExists(branchName)) {
+            System.out.println("No such branch exists.");
+            return;
+        } else if (join(GITLET_DIR, readContentsAsString(HEAD)).getName().equals(branchName)) {
+            System.out.println("No need to checkout the current branch.");
         }
-        System.out.println();
     }
 
-    private static String logFormat(Commit commit) {
-        return "===\n" +
-                "commit " + commit.getShaID() + "\n" +
-                "Date: " + commit.getTime() + "\n" +
-                commit.getMessage() + "\n";
-    }
-
-    private static boolean checkCommitBlob(String fileName) {
-        return loadCommit(getPointer()).getTrackedBlobs().containsKey(fileName);
-    }
-
-    private static void setPointer(Commit curCommit) {
-        String pointerHEAD = readContentsAsString(HEAD);
-        File pointer = join(GITLET_DIR, pointerHEAD);
-        writeContents(pointer, curCommit.getShaID());
-    }
-
-    /**
-     * get the shaID of the commit that the HEAD that is pointing at
-     * @return the ShaID of the pointed commit.
-     */
-    private static String getPointer() {
-        return readContentsAsString(join(GITLET_DIR, readContentsAsString(HEAD)));
+    public static void createBranch(String branchName) {
+        if (checkBranchExists(branchName)) {
+            System.out.println("A branch with that name already exists.");
+        }
+        File branchPointer = join(HEADS_DIR, branchName);
+        String curCommitID = loadCommit(getPointer()).getShaID();
+        writeContents(branchPointer, curCommitID);
     }
 }

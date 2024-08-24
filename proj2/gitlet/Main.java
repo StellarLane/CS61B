@@ -106,7 +106,14 @@ public class Main {
                         break;
                     }
                     Repository.checkoutBranch(args[1]);
+                    break;
                 }
+            case "branch":
+                if (validateNumArgs("branch", args, 2)) {
+                    break;
+                }
+                Repository.createBranch(args[1]);
+                break;
             default:
                 System.out.println("No command called " + args[0] + " found");
             // TODO: FILL THE REST IN
