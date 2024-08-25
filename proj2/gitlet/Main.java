@@ -89,7 +89,7 @@ public class Main {
                     }
                     Repository.checkoutFile(args[2]);
                     break;
-                } else if (args[2].equals("--")) {
+                } else if (args.length == 4 && args[2].equals("--")) {
                     if (validateNumArgs("checkout", args, 4)) {
                         break;
                     }

@@ -195,6 +195,7 @@ public class Repository {
                 restrictedDelete(join(CWD, file));
             }
             setHEAD(branchName);
+            new Stage(loadCommit(getPointer()).getTrackedBlobs(), new HashMap<>(), new HashSet<>());
             Set<String> curCommitFiles = loadCommit(getPointer()).getTrackedBlobs().keySet();
             for (String file : curCommitFiles) {
                 checkoutFile(file);
@@ -208,7 +209,7 @@ public class Repository {
             return;
         }
         File branchPointer = join(HEADS_DIR, branchName);
-        String curCommitID = loadCommit(getPointer()).getShaID();
+        String curCommitID = getPointer();
         writeContents(branchPointer, curCommitID);
     }
 
