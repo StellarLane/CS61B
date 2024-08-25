@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 import static gitlet.Utils.*;
+import static gitlet.Helper.*;
 
 public class Stage implements Serializable {
     /**
@@ -34,6 +35,9 @@ public class Stage implements Serializable {
     }
 
     public void add(String fileName, String shaID) {
+        if (checkContains(curCommit, fileName, shaID)) {
+            return;
+        }
         if (removed.contains(fileName)) {
             removed.remove(fileName);
             writeObject(Repository.INDEX, this);

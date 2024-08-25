@@ -117,7 +117,7 @@ public class Helper {
      * check if there's unstaged changes that may abort the branch command.
      * @return true if abortion is needed.
      */
-    protected static boolean checkBranchAvailable() {
+    protected static boolean checkUnstaged() {
         List<String> filesCWD = plainFilenamesIn(CWD);
         HashMap<String, String> curCommitBlobs = loadCommit(getPointer()).getTrackedBlobs();
         HashMap<String, String> filesMap = new HashMap<>();
@@ -153,7 +153,39 @@ public class Helper {
         return readContentsAsString(join(GITLET_DIR, readContentsAsString(HEAD)));
     }
 
+    /**
+     * get the current name of the branch.
+     * @return the current branch name, in string.
+     */
     protected static String getCurrentBranch() {
         return join(GITLET_DIR, readContentsAsString(HEAD)).getName();
+    }
+
+    /**
+     * check if the map contains the key and the value as a pair.
+     * @param map
+     * @param key
+     * @param value
+     * @return true if contained.
+     */
+    protected static boolean checkContains(HashMap<String, String> map, String key, String value) {
+        return map.containsKey(key) && map.get(key).equals(value);
+    }
+
+    /**
+     * check if there exists a commit with the shaID
+     * @param shaID of the commit
+     * @return t/f
+     */
+    protected static boolean checkCommitExists(String shaID) {
+        return readObject(ALL_COMMITS, ArrayList.class).contains(shaID);
+    }
+
+    /**
+     * changed the branch specified in the HEAD file to the given branch name
+     * @param branchName
+     */
+    protected static void setHEAD(String branchName) {
+        writeContents(HEAD, ("refs/heads/" + branchName));
     }
 }

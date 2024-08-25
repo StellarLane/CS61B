@@ -79,6 +79,9 @@ public class Repository {
             return;
         }
         commitBlobs.putAll(stagingAreaAdded);
+        for (String fileRemoved : readIndex().getRemoved()) {
+            commitBlobs.remove(fileRemoved);
+        }
         Commit newCommit = new Commit(commitMessage, parentCommitString, commitBlobs);
         newCommit.save();
         saveBlob(stagingAreaAdded);
@@ -93,6 +96,10 @@ public class Repository {
         if (checkCommitBlob(rmFileName)) {
             stagingAreaRemoved.add(rmFileName);
             stagingAreaSaved.remove(rmFileName);
+            if (!join(Repository.CWD, rmFileName).exists()) {
+                new Stage(stagingAreaSaved, stagingAreaAdded, stagingAreaRemoved);
+                return;
+            }
             restrictedDelete(join(Repository.CWD, rmFileName));
             new Stage(stagingAreaSaved, stagingAreaAdded, stagingAreaRemoved);
         } else if (stagingAreaAdded.containsKey(rmFileName)) {
@@ -172,7 +179,7 @@ public class Repository {
     }
 
     public static void checkoutBranch(String branchName) {
-        if (checkBranchAvailable()) {
+        if (checkUnstaged()) {
             System.out.println(
                     "There is an untracked file in the way; delete it, or add and commit it first."
             );
@@ -182,6 +189,16 @@ public class Repository {
             System.out.println("No such branch exists.");
         } else if (join(GITLET_DIR, readContentsAsString(HEAD)).getName().equals(branchName)) {
             System.out.println("No need to checkout the current branch.");
+        } else {
+            Set<String> prevCommitFiles = loadCommit(getPointer()).getTrackedBlobs().keySet();
+            for (String file : prevCommitFiles) {
+                restrictedDelete(join(CWD, file));
+            }
+            setHEAD(branchName);
+            Set<String> curCommitFiles = loadCommit(getPointer()).getTrackedBlobs().keySet();
+            for (String file : curCommitFiles) {
+                checkoutFile(file);
+            }
         }
     }
 
@@ -205,5 +222,25 @@ public class Repository {
             return;
         }
         join(HEADS_DIR, branchName).delete();
+    }
+
+    public static void resetCommit(String shaID) {
+        if (checkUnstaged()) {
+            System.out.println(
+                    "There is an untracked file in the way; delete it, or add and commit it first."
+            );
+            return;
+        }
+        if (!checkCommitExists(shaID)) {
+            System.out.println("No commit with that id exists.");
+        }
+        for (String everyFile : plainFilenamesIn(CWD)) {
+            restrictedDelete(join(CWD, everyFile));
+        }
+        Set<String> trackedFileNames = loadCommit(shaID).getTrackedBlobs().keySet();
+        for (String everyFile : trackedFileNames) {
+            checkoutFileCommit(shaID, everyFile);
+        }
+        new Stage(loadCommit(shaID).getTrackedBlobs(), new HashMap<>(), new HashSet<>());
     }
 }

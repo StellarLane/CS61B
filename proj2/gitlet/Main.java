@@ -1,10 +1,8 @@
 package gitlet;
 
 import java.io.File;
-import java.util.Objects;
 
 import static gitlet.Utils.*;
-import static gitlet.Helper.*;
 
 /** Driver class for Gitlet, a subset of the Git version-control system.
  *  @author StellarLane
@@ -58,12 +56,7 @@ public class Main {
                 if (validateNumArgs("rm", args, 2)) {
                     break;
                 }
-                if (join(Repository.CWD, args[1]).exists()) {
-                    Repository.removeFile(args[1]);
-                } else {
-                    System.out.println("File does not exist.");
-                    return;
-                }
+                Repository.removeFile(args[1]);
                 break;
             case "log":
                 if (validateNumArgs("log", args, 1)) {
@@ -121,6 +114,12 @@ public class Main {
                 }
                 Repository.removeBranch(args[1]);
                 break;
+            case "reset":
+                if (validateNumArgs("reset", args, 2)) {
+                    break;
+                }
+                Repository.resetCommit(args[1]);
+                break;
             default:
                 System.out.println("No command called " + args[0] + " found");
             // TODO: FILL THE REST IN
@@ -137,7 +136,7 @@ public class Main {
      */
     private static boolean validateNumArgs(String cmd, String[] args, int n) {
         if (args.length != n) {
-            System.out.println("invalid argument for " + cmd);
+            System.out.println("Incorrect operands");
             return true;
         } else {
             return false;
