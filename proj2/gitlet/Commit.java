@@ -25,12 +25,14 @@ public class Commit implements Objects {
     private final String message;
     /** The time of the commit. */
     private final Date time;
-    /** The parents of the commit */
-    private final String parents;
+    /** The parent of the commit */
+    private final String parent;
     /** The blobs tracked, with the filepath as key and shaID as value */
     private final HashMap<String, String> trackedBlobs;
     /** The shaID of the commit */
     private final String shaID;
+    /** The extra parent commit ID for merge operations, with a empty default value. */
+    private String mergeParent = "";
 
     /**
      * the default commit constructor
@@ -41,8 +43,26 @@ public class Commit implements Objects {
     public Commit(String commitMessage, String commitParents, HashMap<String, String> tracked) {
         message = commitMessage;
         time = new Date();
-        parents = commitParents;
+        parent = commitParents;
         trackedBlobs = tracked;
+        shaID = createShaID();
+        ArrayList<String> allCommitIDs = readObject(Repository.ALL_COMMITS, ArrayList.class);
+        allCommitIDs.add(shaID);
+        writeObject(Repository.ALL_COMMITS, allCommitIDs);
+    }
+
+    /**
+     * the constructor for commits recording a merge operation
+     */
+    public Commit(String commitMessage,
+                  String commitParents,
+                  String commitMergeParent,
+                  HashMap<String, String> tracked) {
+        message = commitMessage;
+        time = new Date();
+        parent = commitParents;
+        trackedBlobs = tracked;
+        mergeParent = commitMergeParent;
         shaID = createShaID();
         ArrayList<String> allCommitIDs = readObject(Repository.ALL_COMMITS, ArrayList.class);
         allCommitIDs.add(shaID);
@@ -55,7 +75,7 @@ public class Commit implements Objects {
     public Commit() {
         message = "initial commit";
         time = new Date(0);
-        parents = "";
+        parent = "";
         trackedBlobs = new HashMap<>();
         shaID = createShaID();
         ArrayList<String> allCommitIDs = new ArrayList<>();
@@ -64,15 +84,15 @@ public class Commit implements Objects {
     }
 
     private String createShaID() {
-        return Utils.sha1(message, time.toString(), parents.toString(), trackedBlobs.toString());
+        return Utils.sha1(message, time.toString(), parent, mergeParent, trackedBlobs.toString());
     }
 
     public HashMap<String, String> getTrackedBlobs() {
         return trackedBlobs;
     }
 
-    public String getParents() {
-        return parents;
+    public String getParent() {
+        return parent;
     }
 
     public String getMessage() {

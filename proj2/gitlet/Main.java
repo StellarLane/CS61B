@@ -2,6 +2,7 @@ package gitlet;
 
 import java.io.File;
 
+import static gitlet.Helper.checkMergeAvailable;
 import static gitlet.Utils.*;
 
 /** Driver class for Gitlet, a subset of the Git version-control system.
@@ -120,8 +121,17 @@ public class Main {
                 }
                 Repository.resetCommit(args[1]);
                 break;
+            case "merge":
+                if (validateNumArgs("merge", args, 2)) {
+                    break;
+                }
+                if (checkMergeAvailable(args[1])) {
+                    break;
+                }
+                Repository.mergeBranch(args[1]);
+                break;
             default:
-                System.out.println("No command called " + args[0] + " found");
+                System.out.println("No command with that name exists.");
             // TODO: FILL THE REST IN
         }
     }

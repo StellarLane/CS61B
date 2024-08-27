@@ -15,11 +15,11 @@ public class Blob implements Objects {
     private final String shaID;
 
 
-    public Blob(String sourceFileName) {
+    public Blob(String sourceFileName, String sha) {
         File sourceFile = join(Repository.CWD, sourceFileName);
         String sourceName = sourceFile.getName();
         sourceFileString = readContentsAsString(sourceFile);
-        shaID = sha1(sourceName, sourceFileString);
+        shaID = sha;
         this.save();
     }
 

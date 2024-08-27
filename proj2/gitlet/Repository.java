@@ -112,9 +112,9 @@ public class Repository {
 
     public static void getLog() {
         Commit currentCommit = loadCommit(getPointer());
-        while (!currentCommit.getParents().isEmpty()) {
+        while (!currentCommit.getParent().isEmpty()) {
             System.out.println(logFormat(currentCommit));
-            currentCommit = loadCommit(currentCommit.getParents());
+            currentCommit = loadCommit(currentCommit.getParent());
         }
         System.out.println(logFormat(currentCommit));
     }
@@ -243,5 +243,64 @@ public class Repository {
             checkoutFileCommit(shaID, everyFile);
         }
         new Stage(loadCommit(shaID).getTrackedBlobs(), new HashMap<>(), new HashSet<>());
+    }
+
+    public static void mergeBranch(String mergeBranch) {
+        Boolean conflict = false;
+        Commit curHeadCommit = loadCommit(getPointer());
+        Commit mergeBranchCommit = loadCommit(readContentsAsString(join(HEADS_DIR, mergeBranch)));
+        Commit splitPoint = loadCommit(findSplitPoint(curHeadCommit, mergeBranchCommit));
+        HashMap<String, String> splitPointFiles = splitPoint.getTrackedBlobs();
+        HashMap<String, String> mergeBranchFiles = mergeBranchCommit.getTrackedBlobs();
+        HashMap<String, String> curHeadFiles = curHeadCommit.getTrackedBlobs();
+        HashMap<String, String> mergeResult = new HashMap<>();
+        HashSet<String> totalFiles = (HashSet<String>) curHeadFiles.keySet();
+        totalFiles.addAll(mergeBranchFiles.keySet());
+        String tmp = "";
+        for (String file : totalFiles) {
+            switch (checkMatch(file, mergeBranchFiles, curHeadFiles, splitPointFiles)) {
+                case 0:
+                    mergeResult.put(file, mergeBranchFiles.get(file));
+                    break;
+                case 10:
+                    tmp = conflictHandler(file, curHeadFiles.get(file), mergeBranchFiles.get(file));
+                    writeContents(join(CWD, file), tmp);
+                    mergeResult.put(file, sha1(file, tmp));
+                    conflict = true;
+                    break;
+                case 11:
+                    tmp = conflictHandler(file, curHeadFiles.get(file), 1);
+                    writeContents(join(CWD, file), tmp);
+                    mergeResult.put(file, sha1(file, tmp));
+                    conflict = true;
+                    break;
+                case 12:
+                    tmp = conflictHandler(file, mergeBranchFiles.get(file), 2);
+                    writeContents(join(CWD, file), tmp);
+                    mergeResult.put(file, sha1(file, tmp));
+                    break;
+                case 21:
+                    mergeResult.put(file, sha1(file, mergeBranchFiles.get(file)));
+                    break;
+                case 22:
+                    mergeResult.put(file, sha1(file, curHeadFiles.get(file)));
+                    break;
+                case 3:
+                    break;
+            }
+        }
+        Commit mergeCommit = new Commit(
+                "Merged " + mergeBranch +" into " + getCurrentBranch() + ".",
+                curHeadCommit.getShaID(),
+                mergeBranchCommit.getShaID(),
+                mergeResult
+        );
+        mergeCommit.save();
+        saveBlob(mergeResult);
+        setPointer(mergeCommit);
+        new Stage(mergeResult, new HashMap<>(), new HashSet<>());
+        if (conflict) {
+            System.out.println("Encountered a merge conflict.");
+        }
     }
 }

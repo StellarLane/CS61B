@@ -42,7 +42,7 @@ public class Helper {
     public static void saveBlob(HashMap<String, String> commitBlobs) {
         Set<String> commitBlobsKeySet = commitBlobs.keySet();
         for (String singleBlob : commitBlobsKeySet) {
-            new Blob(singleBlob);
+            new Blob(singleBlob, commitBlobs.get(singleBlob));
         }
     }
 
@@ -187,5 +187,134 @@ public class Helper {
      */
     protected static void setHEAD(String branchName) {
         writeContents(HEAD, ("refs/heads/" + branchName));
+    }
+
+    /**
+     * Find the splitting point of the two commits
+     * @param firstCommit
+     * @param secondCommit
+     * @return the shaID of the splitting point.
+     */
+    protected static String findSplitPoint(Commit firstCommit, Commit secondCommit) {
+        Commit tmp = firstCommit;
+        HashSet<String> parentCommitList = new HashSet<>();
+        while (!tmp.getParent().isEmpty()) {
+            parentCommitList.add(tmp.getShaID());
+            tmp = loadCommit(tmp.getParent());
+        }
+        parentCommitList.add(tmp.getShaID());
+        tmp = secondCommit;
+        while (!tmp.getParent().isEmpty()) {
+            if (parentCommitList.contains(tmp.getShaID())) {
+                return tmp.getShaID();
+            }
+            tmp = loadCommit(tmp.getParent());
+        }
+        return tmp.getShaID();
+    }
+
+    /**
+     * A helper function to test if a merging action is available
+     * @param branchName
+     * @return t/f
+     */
+    protected static boolean checkMergeAvailable(String branchName) {
+        if (checkUnstaged()) {
+            System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
+            return false;
+        } else if (! readIndex().getAdded().isEmpty() && readIndex().getRemoved().isEmpty()) {
+            System.out.println("You have uncommitted changes.");
+            return false;
+        } else if (!checkBranchExists(branchName)) {
+            System.out.println("A branch with that name does not exist.");
+            return false;
+        } else if (branchName.equals(getCurrentBranch())) {
+            System.out.println("Cannot merge a branch with itself.");
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * A helper function to define what to do with the file
+     * @param fileName name of the processed file
+     * @param map1
+     * @param map2
+     * @param mapO the blobs of the splitting point.
+     * @return 0 if the file is ok and can be added to the final commit,
+     * 10 if a conflict happens but file exists in both branches,
+     * 11 if a conflict happens and file is deleted in map1 branch,
+     * 12 if a conflict happens and file is deleted in map2 branch,
+     * 21 if it's a completely new file in map1 branch,
+     * 22 if it's a completely new file in map2 branch,
+     * 3 if it's unmodified in one branch and removed in the other, will not present in the final commit.
+     */
+    protected static int checkMatch(String fileName,
+                                    HashMap<String, String> map1,
+                                    HashMap<String, String> map2,
+                                    HashMap<String, String> mapO) {
+        if (map1.containsKey(fileName) && map2.containsKey(fileName)) {
+            if (map1.get(fileName).equals(map2.get(fileName))) {
+                return 0;
+            } else {
+                return 10;
+            }
+        } else {
+            if (map2.containsKey(fileName)) {
+                if (mapO.containsKey(fileName)) {
+                    if (map2.get(fileName).equals(mapO.get(fileName))) {
+                        return 3;
+                    } else {
+                        return 11;
+                    }
+                } else {
+                    return 22;
+                }
+            } else {
+                if (mapO.containsKey(fileName)) {
+                    if (map1.get(fileName).equals(mapO.get(fileName))) {
+                        return 3;
+                    } else {
+                        return 12;
+                    }
+                } else {
+                    return 21;
+                }
+            }
+        }
+    }
+
+    /**
+     * Helper method for handling file with conflicts
+     * @param fileName
+     * @param firstShaID
+     * @param secondShaID
+     * @return a string showing the contents of the conflict.
+     */
+    protected static String conflictHandler(String fileName, String firstShaID, String secondShaID) {
+        return "<<<<<<< HEAD\n"
+                + loadBlob(firstShaID).getSourceFileString()
+                + "=======\n"
+                + loadBlob(secondShaID).getSourceFileString()
+                + ">>>>>>>";
+    }
+
+    /**
+     * Helper method for handling file that is modified in one branch and is deleted in the other.
+     * @param fileName
+     * @param shaID
+     * @param location 1 or 2
+     * @return a string showing the contents of the conflict.
+     */
+    protected static String conflictHandler(String fileName, String shaID, int location) {
+        if (location == 1) {
+            return "<<<<<<< HEAD\n"
+                    + loadBlob(shaID).getSourceFileString()
+                    + "=======\n>>>>>>>";
+        } else {
+            return "<<<<<<< HEAD\n=======\n"
+                    + loadBlob(shaID).getSourceFileString()
+                    + ">>>>>>>";
+        }
     }
 }
