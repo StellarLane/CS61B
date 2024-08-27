@@ -19,7 +19,7 @@ public class Blob implements Objects {
         File sourceFile = join(Repository.CWD, sourceFileName);
         String sourceName = sourceFile.getName();
         sourceFileString = readContentsAsString(sourceFile);
-        shaID = sha;
+        shaID = sha1(sourceName, sourceFileString);
         this.save();
     }
 

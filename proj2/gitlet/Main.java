@@ -125,7 +125,7 @@ public class Main {
                 if (validateNumArgs("merge", args, 2)) {
                     break;
                 }
-                if (checkMergeAvailable(args[1])) {
+                if (!checkMergeAvailable(args[1])) {
                     break;
                 }
                 Repository.mergeBranch(args[1]);

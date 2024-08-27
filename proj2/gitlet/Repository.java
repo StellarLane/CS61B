@@ -2,6 +2,7 @@ package gitlet;
 
 import java.io.File;
 import java.util.*;
+import java.util.Objects;
 
 import static gitlet.Helper.StatusFuncs.*;
 import static gitlet.Utils.*;
@@ -246,7 +247,7 @@ public class Repository {
     }
 
     public static void mergeBranch(String mergeBranch) {
-        Boolean conflict = false;
+        boolean conflict = false;
         Commit curHeadCommit = loadCommit(getPointer());
         Commit mergeBranchCommit = loadCommit(readContentsAsString(join(HEADS_DIR, mergeBranch)));
         Commit splitPoint = loadCommit(findSplitPoint(curHeadCommit, mergeBranchCommit));
@@ -254,7 +255,7 @@ public class Repository {
         HashMap<String, String> mergeBranchFiles = mergeBranchCommit.getTrackedBlobs();
         HashMap<String, String> curHeadFiles = curHeadCommit.getTrackedBlobs();
         HashMap<String, String> mergeResult = new HashMap<>();
-        HashSet<String> totalFiles = (HashSet<String>) curHeadFiles.keySet();
+        Set<String> totalFiles =  new HashSet<>(curHeadFiles.keySet());
         totalFiles.addAll(mergeBranchFiles.keySet());
         String tmp = "";
         for (String file : totalFiles) {
@@ -280,22 +281,30 @@ public class Repository {
                     mergeResult.put(file, sha1(file, tmp));
                     break;
                 case 21:
-                    mergeResult.put(file, sha1(file, mergeBranchFiles.get(file)));
+                    mergeResult.put(file, mergeBranchFiles.get(file));
                     break;
                 case 22:
-                    mergeResult.put(file, sha1(file, curHeadFiles.get(file)));
+                    mergeResult.put(file, curHeadFiles.get(file));
                     break;
                 case 3:
                     break;
+                default:
             }
         }
+        for (String file : Objects.requireNonNull(CWD.list())) {
+            restrictedDelete(join(CWD, file));
+        }
         Commit mergeCommit = new Commit(
-                "Merged " + mergeBranch +" into " + getCurrentBranch() + ".",
+                "Merged " + mergeBranch + " into " + getCurrentBranch() + ".",
                 curHeadCommit.getShaID(),
                 mergeBranchCommit.getShaID(),
                 mergeResult
         );
         mergeCommit.save();
+        System.out.println(mergeResult);
+        for (String file : mergeResult.keySet()) {
+            writeContents(join(CWD, file), loadBlob(mergeResult.get(file)).getSourceFileString());
+        }
         saveBlob(mergeResult);
         setPointer(mergeCommit);
         new Stage(mergeResult, new HashMap<>(), new HashSet<>());

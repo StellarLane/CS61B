@@ -220,9 +220,11 @@ public class Helper {
      */
     protected static boolean checkMergeAvailable(String branchName) {
         if (checkUnstaged()) {
-            System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
+            System.out.println(
+                    "There is an untracked file in the way; delete it, or add and commit it first."
+            );
             return false;
-        } else if (! readIndex().getAdded().isEmpty() && readIndex().getRemoved().isEmpty()) {
+        } else if (!readIndex().getAdded().isEmpty() && readIndex().getRemoved().isEmpty()) {
             System.out.println("You have uncommitted changes.");
             return false;
         } else if (!checkBranchExists(branchName)) {
@@ -247,7 +249,8 @@ public class Helper {
      * 12 if a conflict happens and file is deleted in map2 branch,
      * 21 if it's a completely new file in map1 branch,
      * 22 if it's a completely new file in map2 branch,
-     * 3 if it's unmodified in one branch and removed in the other, will not present in the final commit.
+     * 3 if it's unmodified in one branch and removed in the other,
+     * will not present in the final commit.
      */
     protected static int checkMatch(String fileName,
                                     HashMap<String, String> map1,
@@ -291,7 +294,10 @@ public class Helper {
      * @param secondShaID
      * @return a string showing the contents of the conflict.
      */
-    protected static String conflictHandler(String fileName, String firstShaID, String secondShaID) {
+    protected static String conflictHandler(
+            String fileName,
+            String firstShaID,
+            String secondShaID) {
         return "<<<<<<< HEAD\n"
                 + loadBlob(firstShaID).getSourceFileString()
                 + "=======\n"
