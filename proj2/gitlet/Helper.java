@@ -71,12 +71,16 @@ public class Helper {
      */
     public static class StatusFuncs {
         protected static void statusBranch() {
-            String[] allBranches = HEADS_DIR.list();
-            assert allBranches != null;
-            for (String branch : allBranches) {
+            ArrayList<String> branches = new ArrayList<>(Arrays.asList(HEADS_DIR.list()));
+            for (String branch : branches) {
                 if (branch.equals(join(GITLET_DIR, readContentsAsString(HEAD)).getName())) {
                     System.out.print("*");
+                    System.out.println(branch);
+                    branches.remove(branch);
+                    break;
                 }
+            }
+            for (String branch : branches) {
                 System.out.println(branch);
             }
             System.out.println();

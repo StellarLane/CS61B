@@ -255,9 +255,13 @@ public class Repository {
         HashMap<String, String> mergeBranchFiles = mergeBranchCommit.getTrackedBlobs();
         HashMap<String, String> curHeadFiles = curHeadCommit.getTrackedBlobs();
         HashMap<String, String> mergeResult = new HashMap<>();
+        HashMap<String, String> mergeResultConflict = new HashMap<>();
         Set<String> totalFiles =  new HashSet<>(curHeadFiles.keySet());
         totalFiles.addAll(mergeBranchFiles.keySet());
         String tmp = "";
+        for (String file : Objects.requireNonNull(CWD.list())) {
+            restrictedDelete(join(CWD, file));
+        }
         for (String file : totalFiles) {
             switch (checkMatch(file, mergeBranchFiles, curHeadFiles, splitPointFiles)) {
                 case 0:
@@ -266,19 +270,20 @@ public class Repository {
                 case 10:
                     tmp = conflictHandler(file, curHeadFiles.get(file), mergeBranchFiles.get(file));
                     writeContents(join(CWD, file), tmp);
-                    mergeResult.put(file, sha1(file, tmp));
+                    mergeResultConflict.put(file, sha1(file, tmp));
                     conflict = true;
                     break;
                 case 11:
                     tmp = conflictHandler(file, curHeadFiles.get(file), 1);
                     writeContents(join(CWD, file), tmp);
-                    mergeResult.put(file, sha1(file, tmp));
+                    mergeResultConflict.put(file, sha1(file, tmp));
                     conflict = true;
                     break;
                 case 12:
                     tmp = conflictHandler(file, mergeBranchFiles.get(file), 2);
                     writeContents(join(CWD, file), tmp);
-                    mergeResult.put(file, sha1(file, tmp));
+                    mergeResultConflict.put(file, sha1(file, tmp));
+                    conflict = true;
                     break;
                 case 21:
                     mergeResult.put(file, mergeBranchFiles.get(file));
@@ -291,9 +296,6 @@ public class Repository {
                 default:
             }
         }
-        for (String file : Objects.requireNonNull(CWD.list())) {
-            restrictedDelete(join(CWD, file));
-        }
         Commit mergeCommit = new Commit(
                 "Merged " + mergeBranch + " into " + getCurrentBranch() + ".",
                 curHeadCommit.getShaID(),
@@ -301,10 +303,10 @@ public class Repository {
                 mergeResult
         );
         mergeCommit.save();
-        System.out.println(mergeResult);
         for (String file : mergeResult.keySet()) {
             writeContents(join(CWD, file), loadBlob(mergeResult.get(file)).getSourceFileString());
         }
+        mergeResult.putAll(mergeResultConflict);
         saveBlob(mergeResult);
         setPointer(mergeCommit);
         new Stage(mergeResult, new HashMap<>(), new HashSet<>());
