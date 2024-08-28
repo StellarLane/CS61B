@@ -306,7 +306,7 @@ public class Helper {
                 + loadBlob(firstShaID).getSourceFileString()
                 + "=======\n"
                 + loadBlob(secondShaID).getSourceFileString()
-                + ">>>>>>>";
+                + ">>>>>>>\n";
     }
 
     /**
