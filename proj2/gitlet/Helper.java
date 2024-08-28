@@ -324,7 +324,7 @@ public class Helper {
         } else {
             return "<<<<<<< HEAD\n=======\n"
                     + loadBlob(shaID).getSourceFileString()
-                    + ">>>>>>>";
+                    + ">>>>>>>\n";
         }
     }
 }
