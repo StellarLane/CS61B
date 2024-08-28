@@ -320,7 +320,7 @@ public class Helper {
         if (location == 1) {
             return "<<<<<<< HEAD\n"
                     + loadBlob(shaID).getSourceFileString()
-                    + "=======\n>>>>>>>";
+                    + "=======\n>>>>>>>\n";
         } else {
             return "<<<<<<< HEAD\n=======\n"
                     + loadBlob(shaID).getSourceFileString()
