@@ -123,13 +123,14 @@ public class Helper {
      */
     protected static boolean checkUnstaged() {
         List<String> filesCWD = plainFilenamesIn(CWD);
-        HashMap<String, String> curCommitBlobs = loadCommit(getPointer()).getTrackedBlobs();
+        HashMap<String, String> curStaged = readIndex().getAdded();
+        curStaged.putAll(readIndex().getCurCommit());
         HashMap<String, String> filesMap = new HashMap<>();
         for (String file : filesCWD) {
             File tmp = join(CWD, file);
             filesMap.put(file, sha1(file, readContentsAsString(tmp)));
         }
-        return !filesMap.equals(curCommitBlobs);
+        return !filesMap.equals(curStaged);
     }
 
     protected static String logFormat(Commit commit) {
@@ -217,24 +218,46 @@ public class Helper {
         return tmp.getShaID();
     }
 
+//    private static Commit getLatestCommonAncestorCommit(Commit commitA, Commit commitB) {
+//        Comparator<Commit> commitComparator = Comparator.comparing(Commit::getDate).reversed();
+//        Queue<Commit> commitsQueue = new PriorityQueue<>(commitComparator);
+//        commitsQueue.add(commitA);
+//        commitsQueue.add(commitB);
+//        Set<String> checkedCommitIds = new HashSet<>();
+//        while (true) {
+//            Commit latestCommit = commitsQueue.poll();
+//            List<String> parentCommitIds = latestCommit.getParents();
+//            String firstParentCommitId = parentCommitIds.get(0);
+//            Commit firstParentCommit = Commit.fromFile(firstParentCommitId);
+//            if (checkedCommitIds.contains(firstParentCommitId)) {
+//                return firstParentCommit;
+//            }
+//            commitsQueue.add(firstParentCommit);
+//            checkedCommitIds.add(firstParentCommitId);
+//        }
+//    }
+
     /**
      * A helper function to test if a merging action is available
      * @param branchName
      * @return t/f
      */
     protected static boolean checkMergeAvailable(String branchName) {
+        if (!readIndex().getAdded().isEmpty() && readIndex().getRemoved().isEmpty()) {
+            System.out.println("You have uncommitted changes.");
+            return false;
+        }
         if (checkUnstaged()) {
             System.out.println(
                     "There is an untracked file in the way; delete it, or add and commit it first."
             );
             return false;
-        } else if (!readIndex().getAdded().isEmpty() && readIndex().getRemoved().isEmpty()) {
-            System.out.println("You have uncommitted changes.");
-            return false;
-        } else if (!checkBranchExists(branchName)) {
+        }
+        if (!checkBranchExists(branchName)) {
             System.out.println("A branch with that name does not exist.");
             return false;
-        } else if (branchName.equals(getCurrentBranch())) {
+        }
+        if (branchName.equals(getCurrentBranch())) {
             System.out.println("Cannot merge a branch with itself.");
             return false;
         }
@@ -326,5 +349,23 @@ public class Helper {
                     + loadBlob(shaID).getSourceFileString()
                     + ">>>>>>>\n";
         }
+    }
+
+    /**
+     * A helper function to handle abbreviation situations.
+     * @param shaID
+     * @return the full shaID, or the original shaID if no commit matches.
+     */
+    protected static String abbrHandler(String shaID) {
+        if (shaID.length() == 40) {
+            return shaID;
+        }
+        int len = shaID.length();
+        HashMap<String, String> commitAbbrMap = new HashMap<>();
+        ArrayList<String> allCommitsID = readObject(ALL_COMMITS, ArrayList.class);
+        for (String commitID : allCommitsID) {
+            commitAbbrMap.put(commitID.substring(0,len), commitID);
+        }
+        return commitAbbrMap.getOrDefault(shaID, shaID);
     }
 }

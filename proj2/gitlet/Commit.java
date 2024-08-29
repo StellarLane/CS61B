@@ -95,6 +95,10 @@ public class Commit implements Objects {
         return parent;
     }
 
+    public String getMergeParent() {
+        return mergeParent;
+    }
+
     public String getMessage() {
         return message;
     }

@@ -235,6 +235,7 @@ public class Repository {
         }
         if (!checkCommitExists(shaID)) {
             System.out.println("No commit with that id exists.");
+            return;
         }
         for (String everyFile : plainFilenamesIn(CWD)) {
             restrictedDelete(join(CWD, everyFile));
@@ -244,6 +245,7 @@ public class Repository {
             checkoutFileCommit(shaID, everyFile);
         }
         new Stage(loadCommit(shaID).getTrackedBlobs(), new HashMap<>(), new HashSet<>());
+        setPointer(loadCommit(shaID));
     }
 
     public static void mergeBranch(String mergeBranch) {

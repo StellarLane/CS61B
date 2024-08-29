@@ -2,6 +2,7 @@ package gitlet;
 
 import java.io.File;
 
+import static gitlet.Helper.abbrHandler;
 import static gitlet.Helper.checkMergeAvailable;
 import static gitlet.Utils.*;
 
@@ -47,6 +48,10 @@ public class Main {
                 }
                 break;
             case "commit":
+                if (!Repository.GITLET_DIR.exists()) {
+                    System.out.println("Not an initialized Gitlet directory.");
+                    return;
+                }
                 if (args.length == 1 || args[1].isEmpty()) {
                     System.out.println("Please enter a commit message.");
                     return;
@@ -54,36 +59,60 @@ public class Main {
                 Repository.makeCommit(args[1]);
                 break;
             case "rm":
+                if (!Repository.GITLET_DIR.exists()) {
+                    System.out.println("Not an initialized Gitlet directory.");
+                    return;
+                }
                 if (validateNumArgs("rm", args, 2)) {
                     break;
                 }
                 Repository.removeFile(args[1]);
                 break;
             case "log":
+                if (!Repository.GITLET_DIR.exists()) {
+                    System.out.println("Not an initialized Gitlet directory.");
+                    return;
+                }
                 if (validateNumArgs("log", args, 1)) {
                     break;
                 }
                 Repository.getLog();
                 break;
             case "global-log":
+                if (!Repository.GITLET_DIR.exists()) {
+                    System.out.println("Not an initialized Gitlet directory.");
+                    return;
+                }
                 if (validateNumArgs("global-log", args, 1)) {
                     break;
                 }
                 Repository.getGlobalLog();
                 break;
             case "find":
+                if (!Repository.GITLET_DIR.exists()) {
+                    System.out.println("Not an initialized Gitlet directory.");
+                    return;
+                }
                 if (validateNumArgs("find", args, 2)) {
                     break;
                 }
                 Repository.findCommit(args[1]);
                 break;
             case "status":
+                if (!Repository.GITLET_DIR.exists()) {
+                    System.out.println("Not an initialized Gitlet directory.");
+                    return;
+                }
                 if (validateNumArgs("status", args, 1)) {
                     break;
                 }
                 Repository.checkStatus();
                 break;
             case "checkout":
+                if (!Repository.GITLET_DIR.exists()) {
+                    System.out.println("Not an initialized Gitlet directory.");
+                    return;
+                }
                 if (args[1].equals("--")) {
                     if (validateNumArgs("checkout", args, 3)) {
                         break;
@@ -94,7 +123,7 @@ public class Main {
                     if (validateNumArgs("checkout", args, 4)) {
                         break;
                     }
-                    Repository.checkoutFileCommit(args[1], args[3]);
+                    Repository.checkoutFileCommit(abbrHandler(args[1]), args[3]);
                     break;
                 } else {
                     if (validateNumArgs("checkout", args, 2)) {
@@ -104,24 +133,40 @@ public class Main {
                     break;
                 }
             case "branch":
+                if (!Repository.GITLET_DIR.exists()) {
+                    System.out.println("Not an initialized Gitlet directory.");
+                    return;
+                }
                 if (validateNumArgs("branch", args, 2)) {
                     break;
                 }
                 Repository.createBranch(args[1]);
                 break;
             case "rm-branch":
+                if (!Repository.GITLET_DIR.exists()) {
+                    System.out.println("Not an initialized Gitlet directory.");
+                    return;
+                }
                 if (validateNumArgs("rm-branch", args, 2)) {
                     break;
                 }
                 Repository.removeBranch(args[1]);
                 break;
             case "reset":
+                if (!Repository.GITLET_DIR.exists()) {
+                    System.out.println("Not an initialized Gitlet directory.");
+                    return;
+                }
                 if (validateNumArgs("reset", args, 2)) {
                     break;
                 }
-                Repository.resetCommit(args[1]);
+                Repository.resetCommit(abbrHandler(args[1]));
                 break;
             case "merge":
+                if (!Repository.GITLET_DIR.exists()) {
+                    System.out.println("Not an initialized Gitlet directory.");
+                    return;
+                }
                 if (validateNumArgs("merge", args, 2)) {
                     break;
                 }
