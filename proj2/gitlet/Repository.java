@@ -253,6 +253,14 @@ public class Repository {
         Commit curHeadCommit = loadCommit(getPointer());
         Commit mergeBranchCommit = loadCommit(readContentsAsString(join(HEADS_DIR, mergeBranch)));
         Commit splitPoint = loadCommit(findSplitPoint(curHeadCommit, mergeBranchCommit));
+        if (splitPoint.getShaID().equals(mergeBranchCommit.getShaID())) {
+            System.out.println("Given branch is an ancestor of the current branch.");
+            return;
+        } else if (splitPoint.getShaID().equals(curHeadCommit.getShaID())) {
+            System.out.println("Current branch fast-forwarded.");
+            checkoutBranch(mergeBranch);
+            return;
+        }
         HashMap<String, String> splitPointFiles = splitPoint.getTrackedBlobs();
         HashMap<String, String> mergeBranchFiles = mergeBranchCommit.getTrackedBlobs();
         HashMap<String, String> curHeadFiles = curHeadCommit.getTrackedBlobs();
