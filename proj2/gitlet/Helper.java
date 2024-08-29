@@ -364,7 +364,7 @@ public class Helper {
         HashMap<String, String> commitAbbrMap = new HashMap<>();
         ArrayList<String> allCommitsID = readObject(ALL_COMMITS, ArrayList.class);
         for (String commitID : allCommitsID) {
-            commitAbbrMap.put(commitID.substring(0,len), commitID);
+            commitAbbrMap.put(commitID.substring(0, len), commitID);
         }
         return commitAbbrMap.getOrDefault(shaID, shaID);
     }
