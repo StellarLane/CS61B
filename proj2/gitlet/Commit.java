@@ -87,6 +87,10 @@ public class Commit implements Objects {
         return Utils.sha1(message, time.toString(), parent, mergeParent, trackedBlobs.toString());
     }
 
+    public Date getDate() {
+        return time;
+    }
+
     public HashMap<String, String> getTrackedBlobs() {
         return trackedBlobs;
     }

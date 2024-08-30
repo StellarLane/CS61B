@@ -252,7 +252,7 @@ public class Repository {
         boolean conflict = false;
         Commit curHeadCommit = loadCommit(getPointer());
         Commit mergeBranchCommit = loadCommit(readContentsAsString(join(HEADS_DIR, mergeBranch)));
-        Commit splitPoint = loadCommit(findSplitPoint(curHeadCommit, mergeBranchCommit));
+        Commit splitPoint = loadCommit(getSplitPoint(mergeBranchCommit, curHeadCommit));
         if (splitPoint.getShaID().equals(mergeBranchCommit.getShaID())) {
             System.out.println("Given branch is an ancestor of the current branch.");
             return;

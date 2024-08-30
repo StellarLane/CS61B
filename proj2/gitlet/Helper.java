@@ -218,24 +218,32 @@ public class Helper {
         return tmp.getShaID();
     }
 
-//    private static Commit getLatestCommonAncestorCommit(Commit commitA, Commit commitB) {
-//        Comparator<Commit> commitComparator = Comparator.comparing(Commit::getDate).reversed();
-//        Queue<Commit> commitsQueue = new PriorityQueue<>(commitComparator);
-//        commitsQueue.add(commitA);
-//        commitsQueue.add(commitB);
-//        Set<String> checkedCommitIds = new HashSet<>();
-//        while (true) {
-//            Commit latestCommit = commitsQueue.poll();
-//            List<String> parentCommitIds = latestCommit.getParents();
-//            String firstParentCommitId = parentCommitIds.get(0);
-//            Commit firstParentCommit = Commit.fromFile(firstParentCommitId);
-//            if (checkedCommitIds.contains(firstParentCommitId)) {
-//                return firstParentCommit;
-//            }
-//            commitsQueue.add(firstParentCommit);
-//            checkedCommitIds.add(firstParentCommitId);
-//        }
-//    }
+    protected static String getSplitPoint(Commit firstCommit, Commit secondCommit) {
+        Comparator<Commit> commitComparator = Comparator.comparing(Commit::getDate).reversed();
+        Queue<Commit> commitQueue = new PriorityQueue<>(commitComparator);
+        Set<String> checkedCommits = new HashSet<>();
+        commitQueue.add(firstCommit);
+        commitQueue.add(secondCommit);
+        checkedCommits.add(firstCommit.getShaID());
+        checkedCommits.add(secondCommit.getShaID());
+        while (true) {
+            Commit latest = commitQueue.poll();
+            Commit parentCommit = loadCommit(latest.getParent());
+            if (!latest.getMergeParent().isEmpty()) {
+                Commit mergeCommit = loadCommit(latest.getMergeParent());
+                if (checkedCommits.contains(mergeCommit.getShaID())) {
+                    return parentCommit.getShaID();
+                }
+                checkedCommits.add(mergeCommit.getShaID());
+            }
+            if (checkedCommits.contains(parentCommit.getShaID())) {
+//                System.out.println(parentCommit.getMessage());
+                return parentCommit.getShaID();
+            }
+            commitQueue.add(parentCommit);
+            checkedCommits.add(parentCommit.getShaID());
+        }
+    }
 
     /**
      * A helper function to test if a merging action is available
