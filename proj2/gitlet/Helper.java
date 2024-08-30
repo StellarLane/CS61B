@@ -283,7 +283,9 @@ public class Helper {
      * 11 if a conflict happens and file is deleted in map1 branch,
      * 12 if a conflict happens and file is deleted in map2 branch,
      * 21 if it's a completely new file in map1 branch,
+     *      or if it is only modified in map1 branch
      * 22 if it's a completely new file in map2 branch,
+     *      or if it is only modified in map2 branch,
      * 3 if it's unmodified in one branch and removed in the other,
      * will not present in the final commit.
      */
@@ -295,6 +297,11 @@ public class Helper {
             if (map1.get(fileName).equals(map2.get(fileName))) {
                 return 0;
             } else {
+                if (map1.get(fileName).equals(mapO.get(fileName))) {
+                    return 22;
+                } else if (map2.get(fileName).equals(mapO.get(fileName))) {
+                    return 21;
+                }
                 return 10;
             }
         } else {
